@@ -1,4 +1,6 @@
-﻿namespace Orders.Backend.UnitsOfWork
+﻿using Orders.Shared.DTOs;
+
+namespace Orders.Backend.UnitsOfWork
 {
     public class StatesUnitOfWork : GenericUnitOfWork<State>, IStatesUnitOfWork
     {
@@ -9,7 +11,9 @@
             _statesRepository = statesRepository;
         }
 
-        public override async Task<Response<IEnumerable<State>>> GetAsync() => await _statesRepository.GetAsync();
+        public override async Task<Response<IEnumerable<State>>> GetAsync(PaginationDTO pagination) => await _statesRepository.GetAsync(pagination);
+
+        public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _statesRepository.GetTotalPagesAsync(pagination);
 
         public override async Task<Response<State>> GetAsync(int id) => await _statesRepository.GetAsync(id);
     }

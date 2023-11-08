@@ -1,4 +1,4 @@
-﻿using Orders.Backend.Repositories;
+﻿using Orders.Shared.DTOs;
 
 namespace Orders.Backend.UnitsOfWork
 {
@@ -11,8 +11,12 @@ namespace Orders.Backend.UnitsOfWork
             _countriesRepository = countriesRepository;
         }
 
-        public override async Task<Response<IEnumerable<Country>>> GetAsync() => await _countriesRepository.GetAsync();
+        //public override async Task<Response<IEnumerable<Country>>> GetAsync() => await _countriesRepository.GetAsync();
 
         public override async Task<Response<Country>> GetAsync(int id) => await _countriesRepository.GetAsync(id);
+
+        public override async Task<Response<IEnumerable<Country>>> GetAsync(PaginationDTO pagination) => await _countriesRepository.GetAsync(pagination);
+
+        public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _countriesRepository.GetTotalPagesAsync(pagination);
     }
 }

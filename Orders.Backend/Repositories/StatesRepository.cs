@@ -1,4 +1,7 @@
-﻿namespace Orders.Backend.Repositories
+﻿using Orders.Backend.Helpers;
+using Orders.Shared.DTOs;
+
+namespace Orders.Backend.Repositories
 {
     public class StatesRepository : GenericRepository<State>, IStatesRepository
     {
@@ -9,15 +12,35 @@
             _context = context;
         }
 
-        public override async Task<Response<IEnumerable<State>>> GetAsync()
+        public override async Task<Response<IEnumerable<State>>> GetAsync(PaginationDTO pagination)
         {
-            var states = await _context.States
-                .Include(s => s.Cities)
-                .ToListAsync();
+            var queryable = _context.States
+                .Include(x => x.Cities)
+                .Where(x => x.Country!.Id == pagination.Id)
+                .AsQueryable();
+
             return new Response<IEnumerable<State>>
             {
                 WasSuccess = true,
-                Result = states
+                Result = await queryable
+                    .OrderBy(x => x.Name)
+                    .Paginate(pagination)
+                    .ToListAsync()
+            };
+        }
+
+        public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
+        {
+            var queryable = _context.States
+                .Where(x => x.Country!.Id == pagination.Id)
+                .AsQueryable();
+
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
             };
         }
 

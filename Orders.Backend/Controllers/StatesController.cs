@@ -1,4 +1,6 @@
-﻿namespace Orders.Backend.Controllers
+﻿using Orders.Shared.DTOs;
+
+namespace Orders.Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -12,12 +14,23 @@
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAsync()
+        public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var response = await _statesUnitOfWork.GetAsync();
+            var response = await _statesUnitOfWork.GetAsync(pagination);
             if (response.WasSuccess)
             {
                 return Ok(response.Result);
+            }
+            return BadRequest();
+        }
+
+        [HttpGet("totalPages")]
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _statesUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
             }
             return BadRequest();
         }

@@ -1,4 +1,6 @@
-﻿namespace Orders.Backend.UnitsOfWork
+﻿using Orders.Shared.DTOs;
+
+namespace Orders.Backend.UnitsOfWork
 {
     public class GenericUnitOfWork<T> : IGenericUnitOfWork<T> where T : class
     {
@@ -13,10 +15,12 @@
 
         public virtual async Task<Response<T>> DeleteAsync(int id) => await _repository.DeleteAsync(id);
 
-        public virtual async Task<Response<IEnumerable<T>>> GetAsync() => await _repository.GetAsync();
+        public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination) => await _repository.GetAsync(pagination);
 
         public virtual async Task<Response<T>> GetAsync(int id) => await _repository.GetAsync(id);
 
         public virtual async Task<Response<T>> UpdateAsync(T model) => await _repository.UpdateAsync(model);
+
+        public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _repository.GetTotalPagesAsync(pagination);
     }
 }

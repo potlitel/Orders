@@ -1,4 +1,7 @@
-﻿namespace Orders.Backend.Repositories
+﻿using Orders.Backend.Helpers;
+using Orders.Shared.DTOs;
+
+namespace Orders.Backend.Repositories
 {
     public class CountriesRepository : GenericRepository<Country>, ICountriesRepository
     {
@@ -9,15 +12,24 @@
             _context = context;
         }
 
-        public override async Task<Response<IEnumerable<Country>>> GetAsync()
+        public override async Task<Response<IEnumerable<Country>>> GetAsync(PaginationDTO pagination)
         {
-            var countries = await _context.Countries
+            var queryable = _context.Countries
                 .Include(c => c.States)
-                .ToListAsync();
+                .AsQueryable();
+
+            //if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            //{
+            //    queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+            //}
+
             return new Response<IEnumerable<Country>>
             {
                 WasSuccess = true,
-                Result = countries
+                Result = await queryable
+                    .OrderBy(c => c.Name)
+                    .Paginate(pagination)
+                    .ToListAsync()
             };
         }
 
@@ -41,6 +53,29 @@
             {
                 WasSuccess = true,
                 Result = country
+            };
+        }
+
+        public Task<Response<IEnumerable<Country>>> GetAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
+        {
+            var queryable = _context.Countries.AsQueryable();
+
+            //if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            //{
+            //    queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+            //}
+
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
             };
         }
     }

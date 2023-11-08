@@ -1,4 +1,7 @@
-﻿namespace Orders.Backend.Repositories
+﻿using Orders.Backend.Helpers;
+using Orders.Shared.DTOs;
+
+namespace Orders.Backend.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -70,12 +73,15 @@
             };
         }
 
-        public virtual async Task<Response<IEnumerable<T>>> GetAsync()
+        public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
         {
+            var queryable = _entity.AsQueryable();
             return new Response<IEnumerable<T>>
             {
                 WasSuccess = true,
-                Result = await _entity.ToListAsync()
+                Result = await queryable
+            .Paginate(pagination)
+            .ToListAsync()
             };
         }
 
@@ -116,6 +122,18 @@
             {
                 WasSuccess = false,
                 Message = "Ya existe el registro que estas intentando crear."
+            };
+        }
+
+        public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
+        {
+            var queryable = _entity.AsQueryable();
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
             };
         }
     }

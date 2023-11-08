@@ -1,4 +1,6 @@
-﻿namespace Orders.Backend.Controllers
+﻿using Orders.Shared.DTOs;
+
+namespace Orders.Backend.Controllers
 {
     public class GenericController<T> : Controller where T : class
     {
@@ -10,14 +12,18 @@
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAsync()
+        public virtual async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var action = await _unitOfWork.GetAsync();
+            var action = await _unitOfWork.GetAsync(pagination);
             if (action.WasSuccess)
             {
                 return Ok(action.Result);
             }
             return BadRequest();
+            //var queryable = _entity.AsQueryable();
+            //return Ok(await queryable
+            //    .Paginate(pagination)
+            //    .ToListAsync());
         }
 
         [HttpGet("{id}")]
@@ -67,6 +73,17 @@
                 return BadRequest(action.Message);
             }
             return NoContent();
+        }
+
+        [HttpGet("totalPages")]
+        public virtual async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        {
+            var action = await _unitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
     }
 }
