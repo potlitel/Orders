@@ -1,6 +1,4 @@
-﻿using Orders.Backend.Repositories;
-
-namespace Orders.Backend.UnitsOfWork
+﻿namespace Orders.Backend.UnitsOfWork
 {
     public class GenericUnitOfWork<T> : IGenericUnitOfWork<T> where T : class
     {
