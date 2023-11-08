@@ -1,0 +1,15 @@
+﻿@page "/cities/edit/{CityId:int}"
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Ciudad</h3>
+
+@if (city is null)
+{
+    <Loading />
+}
+else
+{
+    <CityForm @ref="cityForm" City="city" OnValidSubmit="SaveAsync" ReturnAction="Return" />
+}
